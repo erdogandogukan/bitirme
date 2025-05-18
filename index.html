@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Park Area Finder (PAF)</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <script type="text/javascript" src="/eel.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Başlık -->
+      <div class="header">
+        <h1>Park Area Finder (PAF)</h1>
+        <button id="themeToggle" class="btn theme-toggle">Dark Mode</button>
+      </div>
+
+      <!-- Kontrol Paneli -->
+      <div class="control-panel">
+        <!-- Video Kaynağı -->
+        <div class="panel">
+          <h3>Video Kaynağı</h3>
+          <div class="input-group">
+            <input
+              type="radio"
+              id="cameraSource"
+              name="source"
+              value="camera"
+              checked
+            />
+            <label for="cameraSource">Kamera</label>
+            <select id="cameraSelect" class="form-control">
+              <option value="">Kamera seçiniz</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <input type="radio" id="videoSource" name="source" value="video" />
+            <label for="videoSource">Video Dosyası</label>
+            <button id="selectVideoBtn" class="btn">Video Seç</button>
+            <input type="text" id="videoPath" class="form-control" readonly />
+          </div>
+          <div class="input-group">
+            <input type="radio" id="ipSource" name="source" value="ip" />
+            <label for="ipSource">IP Kamera</label>
+            <input
+              type="text"
+              id="ipUrl"
+              class="form-control"
+              placeholder="rtsp://<IP>:554/stream"
+              disabled
+            />
+          </div>
+        </div>
+
+        <!-- Koordinat Dosyası -->
+        <div class="panel">
+          <h3>Koordinat Dosyası</h3>
+          <div class="file-select">
+            <input
+              type="text"
+              id="coordinatePath"
+              class="form-control"
+              readonly
+            />
+            <label class="file-label">
+              <input
+                type="file"
+                id="coordinateFile"
+                accept=".json"
+                style="display: none"
+              />
+              <span class="btn">Dosya Seç</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Görüntü Boyutu -->
+        <div class="panel">
+          <h3>Görüntü Boyutu</h3>
+          <div class="resize-control">
+            <input
+              type="range"
+              id="resizeSlider"
+              min="10"
+              max="150"
+              value="100"
+            />
+            <span id="resizeValue">100%</span>
+          </div>
+        </div>
+
+        <!-- Başlat / Durdur -->
+        <div class="action-buttons">
+          <button id="startBtn" class="btn btn-primary">Başlat</button>
+          <button id="stopBtn" class="btn btn-danger hidden">Durdur</button>
+        </div>
+
+        <!-- Hata Mesajı -->
+        <div class="error-box" id="errorBox">
+          <p id="errorMessage">Hata mesajı burada görünecek.</p>
+        </div>
+      </div>
+
+      <!-- Canlı Akış ve Durum Panelleri -->
+      <div class="content-area">
+        <!-- Canlı Video -->
+        <div class="video-feed">
+          <img id="videoFeed" src="" alt="Video görüntüsü" />
+        </div>
+
+        <!-- Park Durumu -->
+        <div class="status-panel">
+          <h3>Park Alanı Durumu</h3>
+          <input
+            type="text"
+            id="stateName"
+            class="form-control"
+            placeholder="Durum Başlığı"
+          />
+          <div class="overlay-container">
+            <img
+              id="statusImage"
+              src=""
+              alt="Statik Durum Görseli"
+              style="width: 100%; height: auto; margin: 10px 0"
+            />
+          </div>
+          <div id="parkingStatus" class="status-display"></div>
+        </div>
+      </div>
+
+      <!-- Sekmeli Bölüm -->
+      <div class="tab-section">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="main">Ana Ekran</button>
+          <button class="tab-btn" data-tab="selector">Koordinat Seçici</button>
+        </div>
+        <div class="tab-content" id="selectorTab" style="display: none">
+          <div class="selector-controls">
+            <!-- Dosya Oluştur -->
+            <div class="panel">
+              <h3>Koordinat Dosyası Oluştur</h3>
+              <div class="input-group">
+                <label>Dosya Adı:</label>
+                <input type="text" id="fileNaming" class="form-control" />
+              </div>
+              <div class="input-group">
+                <label>Konum:</label>
+                <div class="file-select">
+                  <input type="text" id="folderPath" class="form-control" />
+                  <button id="selectFolder" class="btn">Konum Seç</button>
+                </div>
+              </div>
+              <button id="createCoordinateFile" class="btn">
+                Dosya Oluştur
+              </button>
+            </div>
+            <!-- Koordinat Seçici -->
+            <div class="panel">
+              <h3>Koordinat Seçici</h3>
+              <div class="input-group">
+                <label>Koordinat Dosyası:</label>
+                <div class="file-select">
+                  <input
+                    type="text"
+                    id="selectorCoordinateAddress"
+                    class="form-control"
+                    readonly
+                  />
+                  <label class="file-label">
+                    <input
+                      type="file"
+                      id="selectorCoordinateFile"
+                      accept=".json"
+                      style="display: none"
+                    />
+                    <span class="btn">Dosya Seç</span>
+                  </label>
+                </div>
+              </div>
+              <div class="input-group">
+                <label>Alan Adı:</label>
+                <input
+                  type="text"
+                  id="selectorAreaName"
+                  class="form-control"
+                  placeholder="örneğin A"
+                />
+              </div>
+              <div class="input-group">
+                <label>Hücre Adı:</label>
+                <input
+                  type="text"
+                  id="selectorCellName"
+                  class="form-control"
+                  placeholder="örneğin 1"
+                />
+              </div>
+              <button id="selectorStartBtn" class="btn">Seçime Başla</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>
